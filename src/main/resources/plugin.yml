@@ -1,0 +1,11 @@
+name: BOB
+main: com.cogito.bukkit.bob.BankOfBukkit
+version: 0.1
+commands:
+  bob:
+    description: Your helpful bank teller
+    usage: |        
+        Incorrect usage of command /<command>. Examples:
+           /<command> account - start the account dialogue.
+           /<command> transfer - start the transfer dialogue.
+           /<command> bye - end your current banking session.
