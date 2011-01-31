@@ -1,7 +1,8 @@
 package com.cogito.bukkit.bob;
 
-public class Account {
+public abstract class Account {
 
+    private BankOfBukkit bob;
     private double balance;
     private boolean frozen;
 
@@ -17,20 +18,18 @@ public class Account {
         this.frozen = freeze;
     }
 
-    public double credit(double amount, Account debtor) throws InvalidTransactionException {
+    public void credit(double amount, Account debtor) throws InvalidTransactionException {
         if (amount < 0){
             throw new InvalidTransactionException("Can not credit negative amounts.");
         }
-        Account.transfer(amount, this, debtor);
-        return this.balance;
+        bob.getTeller(debtor).newTransaction(new Transaction(amount, this, debtor));
     }
 
-    public double debit(double amount, Account creditor) throws InvalidTransactionException {
+    public void debit(double amount, Account creditor) throws InvalidTransactionException {
         if (amount < 0){
             throw new InvalidTransactionException("Can not debit negative amounts.");
         }
-        Account.transfer(amount, creditor, this);
-        return this.balance;
+        bob.getTeller(this).newTransaction(new Transaction(amount, creditor, this));
     }
     
     static void transfer(double amount, Account creditor, Account debtor) throws InvalidTransactionException{
@@ -46,5 +45,7 @@ public class Account {
         creditor.balance += amount;
         debtor.balance   -= amount;
     }
+
+    abstract void sendMessage(String string);
 
 }

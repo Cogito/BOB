@@ -2,41 +2,16 @@
 package com.cogito.bukkit.bob;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.Event.Priority;
-import org.bukkit.event.block.BlockCanBuildEvent;
-import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.block.BlockEvent;
-import org.bukkit.event.block.BlockFromToEvent;
-import org.bukkit.event.block.BlockIgniteEvent;
-import org.bukkit.event.block.BlockInteractEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.block.BlockRedstoneEvent;
-import org.bukkit.event.block.BlockRightClickEvent;
-import org.bukkit.event.block.LeavesDecayEvent;
-import org.bukkit.event.entity.EntityCombustEvent;
-import org.bukkit.event.entity.EntityDamageByBlockEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageByProjectileEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginLoader;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.PluginLoader;
+import org.bukkit.plugin.java.JavaPlugin;
 
 
 /**
@@ -48,6 +23,8 @@ public class BankOfBukkit extends JavaPlugin {
 
     private static String currencySymbol;
     private Map<Player, PlayerAccount> playerAccounts;
+    private Map<Account, Teller> tellers;
+    private Map<Teller, Thread> tellerThreads;
 
     public BankOfBukkit(PluginLoader pluginLoader, Server instance, PluginDescriptionFile desc, File folder, File plugin, ClassLoader cLoader) {
         super(pluginLoader, instance, desc, folder, plugin, cLoader);
@@ -148,5 +125,37 @@ public class BankOfBukkit extends JavaPlugin {
     private boolean newAccount(Player player) {
         
         return false;
+    }
+    
+
+    
+    static boolean memberOf(Player player, Account account){
+        return false;
+        
+    }
+    
+    public Teller getTeller(Account account){
+        Teller teller;
+        Thread tellerThread;
+        if (tellers.containsKey(account)){
+            teller = tellers.get(account);
+        } else {
+            teller = new Teller(account);
+            tellers.put(account, teller);
+        }
+        if (tellerThreads.containsKey(teller)){
+            tellerThread = tellerThreads.get(teller);
+            if(!tellerThread.isAlive()){
+                tellerThreads.remove(teller);
+                tellerThread = new Thread(teller);
+                tellerThread.start();
+                tellerThreads.put(teller, tellerThread);
+            }
+        } else {
+            tellerThread = new Thread(teller);
+            tellerThread.start();
+            tellerThreads.put(teller, tellerThread);
+        }
+        return teller;
     }
 }
